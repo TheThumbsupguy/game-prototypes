@@ -60,19 +60,19 @@ Crafty.c('Player', {
         this._speed = 0;
 
         // hidData
-        var obj = hitData[0].obj;
+        //var obj = hitData[0].obj;
 
-        console.log(this);
+       // console.log(this);
 
         if (this._movement.x) {
-            if (this._movement.x > 0) console.log('Collide: Right');
-            if (this._movement.x < 0) console.log('Collide: Left');
+            //if (this._movement.x > 0) console.log('Collide: Right');
+            //if (this._movement.x < 0) console.log('Collide: Left');
 
             this.x -= this._movement.x;
         }
         if (this._movement.y) {
-            if (this._movement.y > 0) console.log('Collide: Bottom');
-            if (this._movement.y < 0) console.log('Collide: Top');
+            //if (this._movement.y > 0) console.log('Collide: Bottom');
+            //if (this._movement.y < 0) console.log('Collide: Top');
 
             this.y -= this._movement.y;
         }
