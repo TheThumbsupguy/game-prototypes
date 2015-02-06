@@ -59,24 +59,21 @@ Crafty.c('Player', {
     stopMovement: function(hitData) {
         this._speed = 0;
 
-        // Determine which side was hit
+        // hidData
         var obj = hitData[0].obj;
-        var sides = {
-            left: false,
-            right: false,
-            top: false,
-            bottom: false
-        };
 
-        if (this.x + this.w >= obj.x) sides.left = true;
-        if (this.x <= obj.w + obj.x) sides.right = true;
-        if (this.y + this.h >= obj.y) sides.top = true;
-        if (this.y <= obj.h + obj.y) sides.bottom = true;
+        console.log(this);
 
-        if (this._movement.x && (sides.left || sides.right)) {
+        if (this._movement.x) {
+            if (this._movement.x > 0) console.log('Collide: Right');
+            if (this._movement.x < 0) console.log('Collide: Left');
+
             this.x -= this._movement.x;
         }
-        if (this._movement.y && (sides.top || sides.bottom)) {
+        if (this._movement.y) {
+            if (this._movement.y > 0) console.log('Collide: Bottom');
+            if (this._movement.y < 0) console.log('Collide: Top');
+
             this.y -= this._movement.y;
         }
     } 
