@@ -27,14 +27,40 @@ Crafty.c('Actor', {
 
 Crafty.c('Edge', {
     init: function() {
-        this.requires('Actor, Color')
+        this.requires('Actor, Color, Solid')
             .color('rgb(20, 125, 40)');
     },
 });
 
 Crafty.c('Block', {
     init: function() {
-        this.requires('Actor, Color')
+        this.requires('Actor, Color, Solid')
             .color('rgb(20, 185, 40)');
     },
+});
+
+Crafty.c('Player', {
+    init: function() {
+        this.requires('Actor, Fourway, Color, Collision')
+            .fourway(4)
+            .color('black')
+            .stopOnSolids();
+    },
+
+    // Registers a stop-movement function to be called when
+    // this entity hits an entity with the "Solid" component
+    stopOnSolids: function() {
+        this.onHit('Solid', this.stopMovement);
+     
+        return this;
+    }, 
+
+    // Stop Movement
+    stopMovement: function() {
+        this._speed = 0;
+        if (this._movement) {
+            this.x -= this._movement.x;
+            this.y -= this._movement.y;
+        }
+    } 
 });

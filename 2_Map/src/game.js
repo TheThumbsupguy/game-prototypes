@@ -22,11 +22,8 @@ Game = {
 		Crafty.background('#eee');
 
 		// Player
-		Crafty.e('Actor, Color, Fourway')
-			.attr({x: 20, y: 20, w: 20, h: 20})
-			.color('black')
-			.fourway(3)
-			.bind('EnterFrame', function() {
+		Crafty.e('Player').at(5, 5);
+			/*.bind('EnterFrame', function() {
 
 				// x boundaries
 				if (this.x < 0) this.attr({ x: 0})
@@ -36,7 +33,7 @@ Game = {
 				if (this.y < 0) this.attr({ y: 0})
 				else if (this.y + this.h > Game.height) this.attr({ y: Game.height - this.h });
 
-			});
+			});*/
 
 		// Color in the grid
 		for (var x = 0; x < Game.map_grid.width; x++) {
