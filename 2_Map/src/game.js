@@ -23,17 +23,6 @@ Game = {
 
 		// Player
 		Crafty.e('Player').at(5, 5);
-			/*.bind('EnterFrame', function() {
-
-				// x boundaries
-				if (this.x < 0) this.attr({ x: 0})
-				else if (this.x + this.w > Game.width) this.attr({ x: Game.width - this.w });
-
-				// y boundaries
-				if (this.y < 0) this.attr({ y: 0})
-				else if (this.y + this.h > Game.height) this.attr({ y: Game.height - this.h });
-
-			});*/
 
 		// Color in the grid
 		for (var x = 0; x < Game.map_grid.width; x++) {
