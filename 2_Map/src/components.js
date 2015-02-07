@@ -74,18 +74,60 @@ Crafty.c('Player', {
         var thisTile = this.tileCoordinates();
 
         // Check each hitData
-        for (var i = hitData.length - 1; i >= 0; i--) {
-            var hitTile = hitData[i].obj.tileCoordinates();
+        var prev = null;
+        var actual = null
+        for (var i = 0; i < hitData.length; i++) {
+            //var hitTile = hitData[i].obj.tileCoordinates();
+            var hitObj = hitData[i].obj;
+            //console.log(hitObj);
 
-            if (this._movement.x) {
-                if ((thisTile.x == (hitTile.x + 1) || thisTile.x == (hitTile.x - 1)) && thisTile.y == hitTile.y) {
-                    this.x -= this._movement.x;
+            // Set actual coordinates
+            if ( ! actual) {
+                actual = {
+                    x: this.x - this._movement.x,
+                    y: this.y - this._movement.y
+                };
+            }
+
+            // No diagonals
+            if ((Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width) && Math.abs(actual.y - hitObj.y) == Game.map_grid.tile.height) {
+                continue;
+            }
+
+            // If hitting two tiles side by side, only set this.x back once.
+            if (prev) {
+                if ((hitObj.x == prev.x || hitObj.y == prev.y) && hitData.length == 2) {
+                    continue;
                 }
             }
-            if (this._movement.y) {
-                if ((thisTile.y == (hitTile.y + 1) || thisTile.y == (hitTile.y - 1)) && thisTile.x == hitTile.x) {
-                    this.y -= this._movement.y;
-                }
+            prev = {x: hitObj.x, y:hitObj.y };
+
+            // Check collision type
+            var type = null;
+           
+            
+
+            //console.log('-----' + i + '-----');
+            //console.log('X: ' + Math.abs(actual.x - hitObj.x));
+            //console.log('Y: ' + Math.abs(actual.y - hitObj.y));
+            if (Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width) type = 'horizontal';
+            else if (Math.abs(actual.y - hitObj.y) == Game.map_grid.tile.height) type = 'vertical';
+
+            
+            if (/*this._movement.x &&*/ type == 'horizontal') {
+                //if ((thisTile.x == (hitTile.x + 1) || thisTile.x == (hitTile.x - 1)) && thisTile.y == hitTile.y) {
+                    this.x = actual.x;
+                    if (type == 'diagonal') {
+                        this.y = actual.y;
+                    }
+                    continue;
+                //}
+            }
+            if (/*this._movement.y &&*/ type == 'vertical') {
+                //if ((thisTile.y == (hitTile.y + 1) || thisTile.y == (hitTile.y - 1)) && thisTile.x == hitTile.x) {
+                    this.y = actual.y;
+                    continue;
+                //}
             }
         };
 
