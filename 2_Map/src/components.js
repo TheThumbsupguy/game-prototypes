@@ -5,7 +5,8 @@ Crafty.c('Grid', {
         this.attr({
             w: Game.map_grid.tile.width,
             h: Game.map_grid.tile.height
-        })
+        });
+
     },
 
     // Locate this entity at the given position on the grid
@@ -15,6 +16,14 @@ Crafty.c('Grid', {
         } else {
             this.attr({ x: x * Game.map_grid.tile.width, y: y * Game.map_grid.tile.height });
             return this;
+        }
+    },
+
+    // Round to nearest tile
+    tileCoordinates: function() {
+        return {
+            x: (Math.round( this.x / Game.map_grid.tile.width) * Game.map_grid.tile.width) / Game.map_grid.tile.width,
+            y: (Math.round( this.y / Game.map_grid.tile.height) * Game.map_grid.tile.height) / Game.map_grid.tile.height
         }
     }
 });
@@ -57,24 +66,28 @@ Crafty.c('Player', {
 
     // Stop Movement
     stopMovement: function(hitData) {
-        this._speed = 0;
+        //this._speed = 0;
 
-        // hidData
-        //var obj = hitData[0].obj;
+        //console.log(hitData);
+        //console.log(this.tileCoordinates());
 
-       // console.log(this);
+        var thisTile = this.tileCoordinates();
 
-        if (this._movement.x) {
-            //if (this._movement.x > 0) console.log('Collide: Right');
-            //if (this._movement.x < 0) console.log('Collide: Left');
+        // Check each hitData
+        for (var i = hitData.length - 1; i >= 0; i--) {
+            var hitTile = hitData[i].obj.tileCoordinates();
 
-            this.x -= this._movement.x;
-        }
-        if (this._movement.y) {
-            //if (this._movement.y > 0) console.log('Collide: Bottom');
-            //if (this._movement.y < 0) console.log('Collide: Top');
+            if (this._movement.x) {
+                if ((thisTile.x == (hitTile.x + 1) || thisTile.x == (hitTile.x - 1)) && thisTile.y == hitTile.y) {
+                    this.x -= this._movement.x;
+                }
+            }
+            if (this._movement.y) {
+                if ((thisTile.y == (hitTile.y + 1) || thisTile.y == (hitTile.y - 1)) && thisTile.x == hitTile.x) {
+                    this.y -= this._movement.y;
+                }
+            }
+        };
 
-            this.y -= this._movement.y;
-        }
     } 
 });
