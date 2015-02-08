@@ -19,13 +19,13 @@ Crafty.c('Grid', {
         }
     },
 
-    // Round to nearest tile
-    tileCoordinates: function() {
+    // Find current nearest tile
+    /*tileCoordinates: function() {
         return {
             x: (Math.round( this.x / Game.map_grid.tile.width) * Game.map_grid.tile.width) / Game.map_grid.tile.width,
             y: (Math.round( this.y / Game.map_grid.tile.height) * Game.map_grid.tile.height) / Game.map_grid.tile.height
         }
-    }
+    }*/
 });
 
 Crafty.c('Actor', {
@@ -67,21 +67,15 @@ Crafty.c('Player', {
     // Stop Movement
     stopMovement: function(hitData) {
         //this._speed = 0;
-
-        //console.log(hitData);
-        //console.log(this.tileCoordinates());
-
-        var thisTile = this.tileCoordinates();
+        
+        var prev = null;
+        var actual = null;
 
         // Check each hitData
-        var prev = null;
-        var actual = null
         for (var i = 0; i < hitData.length; i++) {
-            //var hitTile = hitData[i].obj.tileCoordinates();
             var hitObj = hitData[i].obj;
-            //console.log(hitObj);
 
-            // Set actual coordinates
+            // Get actual coordinates for 'this' before the collision
             if ( ! actual) {
                 actual = {
                     x: this.x - this._movement.x,
@@ -89,45 +83,41 @@ Crafty.c('Player', {
                 };
             }
 
-            // No diagonals
-            if ((Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width) && Math.abs(actual.y - hitObj.y) == Game.map_grid.tile.height) {
+            // Ignore diagonal collisions
+            if
+            (
+                hitData.length > 1
+                &&
+                Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width
+                &&
+                Math.abs(actual.y - hitObj.y) == Game.map_grid.tile.height
+            )
+            {
                 continue;
             }
 
-            // If hitting two tiles side by side, only set this.x back once.
+            // If hitting two tiles side by side, push 'this' back once.
             if (prev) {
-                if ((hitObj.x == prev.x || hitObj.y == prev.y) && hitData.length == 2) {
+                if (hitData.length == 2 && (hitObj.x == prev.x || hitObj.y == prev.y)) {
                     continue;
                 }
             }
             prev = {x: hitObj.x, y:hitObj.y };
 
-            // Check collision type
-            var type = null;
-           
-            
-
             //console.log('-----' + i + '-----');
             //console.log('X: ' + Math.abs(actual.x - hitObj.x));
             //console.log('Y: ' + Math.abs(actual.y - hitObj.y));
-            if (Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width) type = 'horizontal';
-            else if (Math.abs(actual.y - hitObj.y) == Game.map_grid.tile.height) type = 'vertical';
 
-            
-            if (/*this._movement.x &&*/ type == 'horizontal') {
-                //if ((thisTile.x == (hitTile.x + 1) || thisTile.x == (hitTile.x - 1)) && thisTile.y == hitTile.y) {
-                    this.x = actual.x;
-                    if (type == 'diagonal') {
-                        this.y = actual.y;
-                    }
-                    continue;
-                //}
+            // Check collision type
+            if (Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width) {
+                // Horizontal
+                this.x = actual.x;
+                continue;
             }
-            if (/*this._movement.y &&*/ type == 'vertical') {
-                //if ((thisTile.y == (hitTile.y + 1) || thisTile.y == (hitTile.y - 1)) && thisTile.x == hitTile.x) {
-                    this.y = actual.y;
-                    continue;
-                //}
+            else if (Math.abs(actual.y - hitObj.y) == Game.map_grid.tile.height) {
+                // Vertical
+                this.y = actual.y;
+                continue;
             }
         };
 
