@@ -83,7 +83,7 @@ Crafty.c('Player', {
                 };
             }
 
-            // Ignore diagonal collisions
+            // If hitData contains more than one tile, ignore diagonal collisions.
             if
             (
                 hitData.length > 1
