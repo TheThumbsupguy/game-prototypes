@@ -52,7 +52,7 @@ Crafty.c('Edge',
     },
 });
 
-Crafty.c('Block'
+Crafty.c('Block',
 {
     init: function()
     {
