@@ -1,7 +1,9 @@
 // The Grid component allows an element to be located
 //  on a grid of tiles
-Crafty.c('Grid', {
-    init: function() {
+Crafty.c('Grid',
+{
+    init: function()
+    {
         this.attr({
             w: Game.map_grid.tile.width,
             h: Game.map_grid.tile.height
@@ -10,17 +12,22 @@ Crafty.c('Grid', {
     },
 
     // Locate this entity at the given position on the grid
-    at: function(x, y) {
-        if (x === undefined && y === undefined) {
+    at: function(x, y)
+    {
+        if (x === undefined && y === undefined)
+        {
             return { x: this.x/Game.map_grid.tile.width, y: this.y/Game.map_grid.tile.height }
-        } else {
+        }
+        else
+        {
             this.attr({ x: x * Game.map_grid.tile.width, y: y * Game.map_grid.tile.height });
             return this;
         }
     },
 
     // Find current nearest tile
-    /*tileCoordinates: function() {
+    /*tileCoordinates: function()
+    {
         return {
             x: (Math.round( this.x / Game.map_grid.tile.width) * Game.map_grid.tile.width) / Game.map_grid.tile.width,
             y: (Math.round( this.y / Game.map_grid.tile.height) * Game.map_grid.tile.height) / Game.map_grid.tile.height
@@ -28,28 +35,36 @@ Crafty.c('Grid', {
     }*/
 });
 
-Crafty.c('Actor', {
-    init: function() {
+Crafty.c('Actor',
+{
+    init: function()
+    {
         this.requires('2D, Canvas, Grid');
     }
 });
 
-Crafty.c('Edge', {
-    init: function() {
+Crafty.c('Edge',
+{
+    init: function()
+    {
         this.requires('Actor, Color, Solid')
             .color('rgb(20, 125, 40)');
     },
 });
 
-Crafty.c('Block', {
-    init: function() {
+Crafty.c('Block'
+{
+    init: function()
+    {
         this.requires('Actor, Color, Solid')
             .color('rgb(20, 185, 40)');
     },
 });
 
-Crafty.c('Player', {
-    init: function() {
+Crafty.c('Player',
+{
+    init: function()
+    {
         this.requires('Actor, Fourway, Color, Collision')
             .fourway(4)
             .color('black')
@@ -58,38 +73,41 @@ Crafty.c('Player', {
 
     // Registers a stop-movement function to be called when
     // this entity hits an entity with the "Solid" component
-    stopOnSolids: function() {
+    stopOnSolids: function()
+    {
         this.onHit('Solid', this.stopMovement);
      
         return this;
     }, 
 
     // Stop Movement
-    stopMovement: function(hitData) {
+    stopMovement: function(hitData)
+    {
         switch (hitData.length)
         {
-            case 1: // 1 Block
-                var actual = {
+            case 1: // 1 tile
+                var thisBeforeHit = {
                     x: this.x - this._movement.x,
                     y: this.y - this._movement.y
                 };
-
                 var hitObj = hitData[0].obj;
+                var tile = Game.map_grid.tile;
 
-                if ((actual.x - 20 == hitObj.x) || (actual.x + 20 == hitObj.x))
+                if ((thisBeforeHit.x - tile.width == hitObj.x) || (thisBeforeHit.x + tile.width == hitObj.x))
                 {
-                    this.x = actual.x;
+                    this.x = thisBeforeHit.x;
                 }
-                if ((actual.y - 20 == hitObj.y) || (actual.y + 20 == hitObj.y))
+                if ((thisBeforeHit.y - tile.height == hitObj.y) || (thisBeforeHit.y + tile.height == hitObj.y))
                 {
-                    this.y = actual.y;
+                    this.y = thisBeforeHit.y;
                 }
 
-                delete actual;
+                delete thisBeforeHit;
                 delete hitObj;
+                delete tile;
 
                 break;
-            case 2: // 2 Side by side
+            case 2: // 2 tiles side by side
                 if (hitData[0].obj.x == hitData[1].obj.x)
                 {   
                     this.x -= this._movement.x;
@@ -100,24 +118,27 @@ Crafty.c('Player', {
                     this.y -= this._movement.y;
                     break;
                 }
-            default: // 3 Corner | 2 Diagonal
+            default: // 3 tiles as corner or 2 tiles diagonal
                 this.x -= this._movement.x;
                 this.y -= this._movement.y;
         }
     }
 
-    /*stopMovement: function(hitData) {
+    /*stopMovement: function(hitData)
+    {
         //this._speed = 0;
         
         var actual = null;
         var prev = null;
 
         // Check each hitData
-        for (var i = 0; i < hitData.length; i++) {
+        for (var i = 0; i < hitData.length; i++)
+        {
             var hitObj = hitData[i].obj;
 
             // Get actual coordinates for 'this' before the collision
-            if ( ! actual) {
+            if ( ! actual)
+            {
                 actual = {
                     x: this.x - this._movement.x,
                     y: this.y - this._movement.y
@@ -138,8 +159,10 @@ Crafty.c('Player', {
             }
 
             // If hitting two tiles side by side, push 'this' back once.
-            if (prev) {
-                if (hitData.length == 2 && (hitObj.x == prev.x || hitObj.y == prev.y)) {
+            if (prev)
+            {
+                if (hitData.length == 2 && (hitObj.x == prev.x || hitObj.y == prev.y))
+                {
                     continue;
                 }
             }
@@ -150,12 +173,14 @@ Crafty.c('Player', {
             //console.log('Y: ' + Math.abs(actual.y - hitObj.y));
 
             // Check collision type            
-            if (Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width) {
+            if (Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width)
+            {
                 // Horizontal
                 this.x = actual.x;
                 continue;
             }
-            else if (Math.abs(actual.y - hitObj.y) == Game.map_grid.tile.height) {
+            else if (Math.abs(actual.y - hitObj.y) == Game.map_grid.tile.height)
+            {
                 // Vertical
                 this.y = actual.y;
                 continue;
