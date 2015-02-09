@@ -84,6 +84,10 @@ Crafty.c('Player', {
                 {
                     this.y = actual.y;
                 }
+
+                delete actual;
+                delete hitObj;
+
                 break;
             case 2: // 2 Side by side
                 if (hitData[0].obj.x == hitData[1].obj.x)
