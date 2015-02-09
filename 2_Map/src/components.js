@@ -66,10 +66,47 @@ Crafty.c('Player', {
 
     // Stop Movement
     stopMovement: function(hitData) {
+        switch (hitData.length)
+        {
+            case 1: // 1 Block
+                var actual = {
+                    x: this.x - this._movement.x,
+                    y: this.y - this._movement.y
+                };
+
+                var hitObj = hitData[0].obj;
+
+                if ((actual.x - 20 == hitObj.x) || (actual.x + 20 == hitObj.x))
+                {
+                    this.x = actual.x;
+                }
+                if ((actual.y - 20 == hitObj.y) || (actual.y + 20 == hitObj.y))
+                {
+                    this.y = actual.y;
+                }
+                break;
+            case 2: // 2 Side by side
+                if (hitData[0].obj.x == hitData[1].obj.x)
+                {   
+                    this.x -= this._movement.x;
+                    break;
+                }
+                else if (hitData[0].obj.y == hitData[1].obj.y)
+                {
+                    this.y -= this._movement.y;
+                    break;
+                }
+            default: // 3 Corner | 2 Diagonal
+                this.x -= this._movement.x;
+                this.y -= this._movement.y;
+        }
+    }
+
+    /*stopMovement: function(hitData) {
         //this._speed = 0;
         
-        var prev = null;
         var actual = null;
+        var prev = null;
 
         // Check each hitData
         for (var i = 0; i < hitData.length; i++) {
@@ -108,7 +145,7 @@ Crafty.c('Player', {
             //console.log('X: ' + Math.abs(actual.x - hitObj.x));
             //console.log('Y: ' + Math.abs(actual.y - hitObj.y));
 
-            // Check collision type
+            // Check collision type            
             if (Math.abs(actual.x - hitObj.x) == Game.map_grid.tile.width) {
                 // Horizontal
                 this.x = actual.x;
@@ -120,6 +157,5 @@ Crafty.c('Player', {
                 continue;
             }
         };
-
-    } 
+    }*/
 });
