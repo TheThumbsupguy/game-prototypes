@@ -65,17 +65,20 @@ Crafty.c('Player',
 {
     init: function()
     {
-        this.requires('Actor, Fourway, Color, Collision')
+        this.requires('Actor, Fourway, Color, Collision, Gravity')
             .fourway(4)
             .color('black')
-            .stopOnSolids();
+            .stopOn('Solid');
+            //.gravity('Solid');
     },
 
     // Registers a stop-movement function to be called when
     // this entity hits an entity with the "Solid" component
-    stopOnSolids: function()
+    stopOn: function(component)
     {
-        this.onHit('Solid', this.stopMovement);
+        if ( ! component) return;
+
+        this.onHit(component, this.stopMovement);
      
         return this;
     }, 
