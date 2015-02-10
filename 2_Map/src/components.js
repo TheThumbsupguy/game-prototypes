@@ -100,7 +100,7 @@ Crafty.c('Player',
                 {
                     this.x = thisBeforeHit.x;
                 }
-                if ((thisBeforeHit.y - tile.height == hitObj.y) || (thisBeforeHit.y + tile.height == hitObj.y))
+                else if ((thisBeforeHit.y - tile.height == hitObj.y) || (thisBeforeHit.y + tile.height == hitObj.y))
                 {
                     this.y = thisBeforeHit.y;
                 }
