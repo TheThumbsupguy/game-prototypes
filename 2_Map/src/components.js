@@ -1,5 +1,6 @@
-// The Grid component allows an element to be located
-//  on a grid of tiles
+///////////////////////////////////////////////
+//                   Grid                    //
+///////////////////////////////////////////////
 Crafty.c('Grid',
 {
     init: function()
@@ -35,6 +36,9 @@ Crafty.c('Grid',
     }*/
 });
 
+///////////////////////////////////////////////
+//                  Actors                   //
+///////////////////////////////////////////////
 Crafty.c('Actor',
 {
     init: function()
@@ -61,27 +65,32 @@ Crafty.c('Block',
     },
 });
 
+Crafty.c('Item',
+{
+    init: function()
+    {
+        this.requires('Actor, Color')
+            .color('rgb(170, 125, 40)');
+    },
+
+    collect: function()
+    {
+        this.destroy();
+        Crafty.trigger('ItemCollected', this);
+    }
+});
+
 Crafty.c('Player',
 {
     init: function()
     {
         this.requires('Actor, Fourway, Color, Collision, Gravity')
             .fourway(4)
-            .color('black')
-            .stopOn('Solid');
+            .color('rgb(20, 75, 40)')
+            .onHit('Solid', this.stopMovement)
+            .onHit('Item', this.collectItem);
             //.gravity('Solid');
     },
-
-    // Registers a stop-movement function to be called when
-    // this entity hits an entity with the "Solid" component
-    stopOn: function(component)
-    {
-        if ( ! component) return;
-
-        this.onHit(component, this.stopMovement);
-     
-        return this;
-    }, 
 
     // Stop Movement
     stopMovement: function(hitData)
@@ -125,5 +134,12 @@ Crafty.c('Player',
                 this.x -= this._movement.x;
                 this.y -= this._movement.y;
         }
+    },
+
+    // Item handler
+    collectItem: function(hitData)
+    {
+        var item = hitData[0].obj;
+        item.collect();
     }
 });

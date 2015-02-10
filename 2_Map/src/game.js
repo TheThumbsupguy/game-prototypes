@@ -2,8 +2,8 @@ Game = {
 
 	map_grid:
 	{
-		width: 48, // 960px
-		height: 27, // 540px
+		width: 48,
+		height: 27,
 		tile:
 		{
 			width: 20,
@@ -23,27 +23,8 @@ Game = {
 	{
 		// Start
 		Crafty.init(Game.width(), Game.height(), document.getElementById('game'));
-		Crafty.background('#eee');
+		Crafty.background('rgb(249, 223, 125)');
 
-		// Player
-		Crafty.e('Player').at(5, 5);
-
-		// Color in the grid
-		for (var x = 0; x < Game.map_grid.width; x++)
-		{
-		    for (var y = 0; y < Game.map_grid.height; y++)
-		    {
-		        var at_edge = x == 0 || x == Game.map_grid.width - 1 || y == 0 || y == Game.map_grid.height - 1;
-		 
-		        if (at_edge)
-		        {
-					Crafty.e('Edge').at(x, y);
-		        }
-		        else if (Math.random() < 0.06)
-		        {
-					Crafty.e('Block').at(x, y);
-		        }
-		    }
-		}
+		Crafty.scene('Game');
 	}
 } 
