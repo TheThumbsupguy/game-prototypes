@@ -77,8 +77,11 @@ Crafty.scene('Game', function()
 Crafty.scene('Victory', function()
 {
 	Crafty.e('2D, DOM, Text')
-		.attr({ x: 0, y: 0 })
-		.text('Victory!');
+		.attr({ x: 0, y: 200 })
+		.text(function()
+		{
+			return '<h1>Victory!</h1><p>Press any key to restart.</p>';
+		});
 
 	this.restart_game = this.bind('KeyDown', function()
 	{
