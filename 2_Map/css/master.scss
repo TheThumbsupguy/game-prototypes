@@ -1,0 +1,24 @@
+#game {
+	margin: 0 auto;
+
+	> div {
+		width: 100% !important;
+		height: 100% !important;
+
+		.DOM {
+			width: 100% !important;
+			height: initial !important;
+			&.Text {
+				text-align: center;
+				
+				h1 {
+					font-size: 24px;
+				}
+
+				p {
+					font-size: 16px;
+				}
+			}
+		}
+	}
+}

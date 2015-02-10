@@ -1,0 +1,16 @@
+#game {
+  margin: 0 auto; }
+  #game > div {
+    width: 100% !important;
+    height: 100% !important; }
+    #game > div .DOM {
+      width: 100% !important;
+      height: initial !important; }
+      #game > div .DOM.Text {
+        text-align: center; }
+        #game > div .DOM.Text h1 {
+          font-size: 24px; }
+        #game > div .DOM.Text p {
+          font-size: 16px; }
+
+/*# sourceMappingURL=master.css.map */
