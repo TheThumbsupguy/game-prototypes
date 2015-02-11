@@ -27,4 +27,5 @@ Game = {
 
 		Crafty.scene('Game');
 	}
+	
 } 
