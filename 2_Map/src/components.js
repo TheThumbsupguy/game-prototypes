@@ -114,10 +114,6 @@ Crafty.c('Player',
                     this.y = thisBeforeHit.y;
                 }
 
-                delete thisBeforeHit;
-                delete hitObj;
-                delete tile;
-
                 break;
             case 2: // 2 tiles side by side
                 if (hitData[0].obj.x == hitData[1].obj.x)
