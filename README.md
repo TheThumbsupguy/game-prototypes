@@ -16,6 +16,6 @@ Libraries: [Crafty](craftyjs.com)
 
 ## May '15 - Childhood
 
-A snake game.
+A snake game inspired by this tutorial at [thecodeplayer](thecodeplayer.com/walkthrough/html5-game-tutorial-make-a-snake-game-using-html5-canvas-jquery).
 
 Libraries: [jQuery](jquery.com)
