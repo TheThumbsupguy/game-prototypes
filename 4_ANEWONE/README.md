@@ -2,7 +2,7 @@
 
 A game prototype with Phaser.
 
-## Starting the App
+## Starting the App Locally
 
 Run the following commands in the `4_ANEWONE` directory from your terminal.
 ```sh
