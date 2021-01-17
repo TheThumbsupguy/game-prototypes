@@ -2,42 +2,94 @@
 <html>
 
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.52.0/dist/phaser-arcade-physics.min.js"></script>
 </head>
 
 <body>
 
   <script>
-    var config = {
+    const config = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
+      width: 480,
+      height: 270,
+      pixelArt: true,
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        autoResize: true
+      },
+      physics: {
+        default: 'arcade',
+        arcade: {
+          debug: false
+        }
+      },
       scene: {
         preload: preload,
         create: create,
         update: update
       }
     };
+    let playerVelocity = 120;
+    let playerInVehicle = false;
 
-    var game = new Phaser.Game(config);
+    const game = new Phaser.Game(config);
 
     function preload() {
-      this.load.image('sky', 'assets/sky.png');
-      this.load.image('ground', 'assets/platform.png');
-      this.load.image('star', 'assets/star.png');
-      this.load.image('bomb', 'assets/bomb.png');
-      this.load.spritesheet('dude',
-        'assets/dude.png',
-        { frameWidth: 32, frameHeight: 48 }
-      );
     }
 
     function create() {
-      this.add.image(400, 300, 'sky');
-      this.add.image(400, 300, 'star');
+      const vehicleRectangle = this.add.rectangle(16, game.config.height - 32, 16, 16, "0xff0000").setOrigin(0, 0).setName('vehicle');
+      const playerRectangle = this.add.rectangle(game.config.width / 2, game.config.height / 2, 16, 16, "0xffffff").setOrigin(0, 0).setName('player');
+
+      this.vehicle = this.physics.add.existing(vehicleRectangle);
+      this.player = this.physics.add.existing(playerRectangle);
+
+      this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     function update() {
+      const { up, right, down, left, space } = this.cursors;
+      const gameObjects = [this.player, this.vehicle];
+      const activeObject = playerInVehicle ? this.vehicle : this.player;
+
+      // Stop all non-active vehicles
+      gameObjects
+        .filter(object => object.name != activeObject.name)
+        .forEach(object => object.body.setVelocity(0));
+
+      if (up.isDown) {
+        activeObject.body.setVelocityY(-playerVelocity);
+      } else if (down.isDown) {
+        activeObject.body.setVelocityY(playerVelocity);
+      } else {
+        activeObject.body.setVelocityY(0);
+      }
+
+      if (left.isDown) {
+        activeObject.body.setVelocityX(-playerVelocity);
+      } else if (right.isDown) {
+        activeObject.body.setVelocityX(playerVelocity);
+      } else {
+        activeObject.body.setVelocityX(0);
+      }
+
+      if (this.physics.world.intersects(this.player.body, this.vehicle.body)) {
+        if (space.isDown && !playerInVehicle) {
+          playerInVehicle = true;
+          playerVelocity += (playerVelocity / 2);
+          this.player.setActive(false);
+          this.player.setAlpha(0);
+        }
+      } else {
+        if (space.isDown && playerInVehicle) {
+          playerInVehicle = false;
+          playerVelocity -= (playerVelocity / 3);
+          this.player.setActive(true);
+          this.player.clearAlpha();
+          this.player.setPosition(this.vehicle.x + 16, this.vehicle.y)
+        }
+      }
     }
 
   </script>
