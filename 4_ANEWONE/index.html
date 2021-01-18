@@ -30,7 +30,7 @@
         update: update
       }
     };
-    let playerVelocity = 120;
+    const PLAYER_VELOCITY = 120;
 
     const game = new Phaser.Game(config);
 
@@ -40,69 +40,101 @@
     function create() {
       // Vehicles
       const vehicleConfig = [
-        { color: '0xff0000', x: 16, y: game.config.height - 32 },
-        { color: '0x00ff00', x: game.config.width / 2, y: game.config.height - 32 },
-        { color: '0x0000ff', x: game.config.width - 32, y: game.config.height - 32 },
+        { color: '0xff0000', x: 16, y: 16 },
+        { color: '0xffff00', x: 16, y: game.config.height / 2 - 8 },
+        { color: '0x0000ff', x: 16, y: game.config.height - 32 },
+        { color: '0xff6600', x: game.config.width - 32, y: 16 },
+        { color: '0x00ff00', x: game.config.width - 32, y: game.config.height / 2 - 8 },
+        { color: '0x6600ff', x: game.config.width - 32, y: game.config.height - 32 },
       ];
 
       this.vehicles = this.physics.add.group();
 
       for (let index = 0; index < vehicleConfig.length; index++) {
         const { color, x, y } = vehicleConfig[index];
-        const vehicle = this.add.rectangle(x, y, 16, 16, color).setOrigin(0, 0).setName('vehicle');
+        const vehicle = this.add.rectangle(x, y, 16, 16, color)
+          .setOrigin(0, 0)
+          .setName('vehicle');
         this.vehicles.add(this.physics.add.existing(vehicle));
       }
 
       // Player
-      const playerRectangle = this.add.rectangle(game.config.width / 2, game.config.height / 2, 16, 16, "0xffffff").setOrigin(0, 0).setName('player');
+      const playerRectangle = this.add.rectangle(game.config.width / 2 - 8, game.config.height / 2 - 8, 16, 16, "0xffffff")
+        .setOrigin(0, 0)
+        .setName('player')
+        .setDepth(this.vehicles.children.size);
       this.player = this.physics.add.existing(playerRectangle);
 
       // Initialize active objects
-      this.activeObjects = this.physics.add.group([this.player]);
+      this.activeObjects = this.physics.add.group();
 
       // Controls
       this.cursors = this.input.keyboard.createCursorKeys();
-      this.cursors.space.on('down', keyDownHandler, this);
+      this.cursors.space.on('down', spaceKeyDown, this);
+      this.cursors.shift.on('down', shiftKeyDown, this);
     }
 
     function update() {
-      const { up, right, down, left, space } = this.cursors;
+      const { up, right, down, left, space, shift } = this.cursors;
 
       // Stop non-active vehicles
-      this.vehicles.children.iterate(vehicle => {
+      this.vehicles.children.each(vehicle => {
         if (vehicle.body.velocity.x != 0 || vehicle.body.velocity.y != 0) {
           vehicle.body.setVelocity(0);
         }
       });
 
       if (up.isDown) {
-        this.activeObjects.children.iterate((object) => object.body.setVelocityY(-playerVelocity));
+        this.player.body.setVelocityY(-PLAYER_VELOCITY);
       } else if (down.isDown) {
-        this.activeObjects.children.iterate((object) => object.body.setVelocityY(playerVelocity));
+        this.player.body.setVelocityY(PLAYER_VELOCITY);
       } else {
-        this.activeObjects.children.iterate((object) => object.body.setVelocityY(0));
+        this.player.body.setVelocityY(0);
       }
 
       if (left.isDown) {
-        this.activeObjects.children.iterate((object) => object.body.setVelocityX(-playerVelocity));
+        this.player.body.setVelocityX(-PLAYER_VELOCITY);
       } else if (right.isDown) {
-        this.activeObjects.children.iterate((object) => object.body.setVelocityX(playerVelocity));
+        this.player.body.setVelocityX(PLAYER_VELOCITY);
       } else {
-        this.activeObjects.children.iterate((object) => object.body.setVelocityX(0));
+        this.player.body.setVelocityX(0);
       }
+
+      let previous;
+      this.activeObjects.children.intersect(this.vehicles.children).each((vehicle, index) => {
+        const dx = (previous ? previous.x : this.player.x) - vehicle.x;
+        const dy = (previous ? previous.y : this.player.y) - vehicle.y;
+        const vx = dx * 4;
+        const vy = dy * 4;
+        vehicle.body.setVelocity(vx, vy);
+        previous = vehicle;
+      });
     }
 
-    function keyDownHandler() {
+    function spaceKeyDown() {
       // For each vehicle on the map...
-      this.vehicles.children.iterate((vehicle) => {
+      this.vehicles.children.each(vehicle => {
         // Check if the player overlaps a vehicle.
         if (this.physics.world.intersects(this.player.body, vehicle.body)) {
           // If so, attach vehicle to player, otherwise detach vehicle from player.
           if (!this.activeObjects.contains(vehicle)) {
+            const index = this.activeObjects.children.size - 1;
+            const x = this.player.x;
+            const y = this.player.y + ((index + 1) * 8);
+            const depth = this.vehicles.children.size - (index + 1);
+
+            vehicle.setDepth(depth);
+
             this.activeObjects.add(vehicle);
-          } else if (this.activeObjects.contains(vehicle)) {
-            this.activeObjects.remove(vehicle);
           }
+        }
+      });
+    }
+
+    function shiftKeyDown() {
+      this.vehicles.children.iterate(vehicle => {
+        if (this.activeObjects.contains(vehicle)) {
+          this.activeObjects.remove(vehicle);
         }
       });
     }
