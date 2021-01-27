@@ -21,7 +21,10 @@
       physics: {
         default: 'arcade',
         arcade: {
-          debug: false
+          debug: false,
+          gravity: {
+            y: 600
+          },
         }
       },
       scene: {
@@ -38,14 +41,30 @@
     }
 
     function create() {
+      // Sky
+      this.add.rectangle(0, 0, game.config.width, game.config.height - 32, 0x8cc4ff).setOrigin(0);
+
+      // Sun
+      this.add.rectangle(game.config.width - 32, 0, 32, 32, 0xf3cf49).setOrigin(0);
+      this.add.rectangle(game.config.width - 64, 14, 16, 4, 0xf3cf49).setOrigin(0);
+      this.add.rectangle(game.config.width - 18, 48, 4, 16, 0xf3cf49).setOrigin(0);
+
+      // Cloud
+      this.add.rectangle(100, 16, 64, 32, 0xe8e8e8).setOrigin(0);
+      this.add.rectangle(116, 32, 64, 32, 0xe8e8e8).setOrigin(0);
+
+      // Ground
+      const ground = this.add.rectangle(0, game.config.height - 32, game.config.width, 32, 0x457b3d).setOrigin(0);
+      this.ground = this.physics.add.existing(ground, true);
+
       // Vehicles
       const vehicleConfig = [
         { color: '0xff0000', x: 16, y: 16, name: 'red' },
-        { color: '0xffff00', x: 16, y: game.config.height / 2 - 8, name: 'yellow' },
-        { color: '0x0000ff', x: 16, y: game.config.height - 32, name: 'blue' },
-        { color: '0xff6600', x: game.config.width - 32, y: 16, name: 'orange' },
+        { color: '0xffff00', x: 48, y: game.config.height / 2 - 8, name: 'yellow' },
+        //{ color: '0x0000ff', x: 16, y: game.config.height - 32, name: 'blue' },
+        { color: '0xff6600', x: game.config.width - 64, y: 16, name: 'orange' },
         { color: '0x00ff00', x: game.config.width - 32, y: game.config.height / 2 - 8, name: 'green' },
-        { color: '0x6600ff', x: game.config.width - 32, y: game.config.height - 32, name: 'purple' },
+        //{ color: '0x6600ff', x: game.config.width - 32, y: game.config.height - 32, name: 'purple' },
       ];
 
       this.vehicles = this.physics.add.group();
@@ -124,6 +143,9 @@
       this.cursors = this.input.keyboard.createCursorKeys();
       this.cursors.space.on('down', spaceKeyDown, this);
       this.cursors.shift.on('down', shiftKeyDown, this);
+
+      // collision detection
+      this.physics.add.collider([this.player, this.vehicles], this.ground);
     }
 
     function update(time, delta) {
@@ -133,7 +155,7 @@
       // Stop non-active vehicles
       this.vehicles.children.each(vehicle => {
         if (vehicle.body.velocity.x != 0 || vehicle.body.velocity.y != 0) {
-          vehicle.body.setVelocity(0);
+          vehicle.body.setVelocityX(0);
         }
       });
 
@@ -162,7 +184,7 @@
       } else if (down.isDown) {
         this.player.body.setVelocityY(velocity);
       } else {
-        this.player.body.setVelocityY(0);
+        //this.player.body.setVelocityY(0);
       }
 
       if (left.isDown) {
@@ -180,7 +202,7 @@
         } else if (down.isDown) {
           this.shield.body.setVelocityY(velocity);
         } else {
-          this.shield.body.setVelocityY(0);
+          //this.shield.body.setVelocityY(0);
         }
 
         if (left.isDown) {
@@ -198,7 +220,7 @@
         } else if (down.isDown) {
           this.shield2.body.setVelocityY(velocity);
         } else {
-          this.shield2.body.setVelocityY(0);
+          // this.shield2.body.setVelocityY(0);
         }
 
         if (left.isDown) {
@@ -217,7 +239,11 @@
         const dy = (previous ? previous.y : this.player.y) - vehicle.y;
         const vx = dx * 4;
         const vy = dy * 4;
-        vehicle.body.setVelocity(vx, vy);
+        if (up.isDown) {
+          vehicle.body.setVelocity(vx, vy);
+        } else {
+          vehicle.body.setVelocityX(vx)
+        }
         previous = vehicle;
       });
     }
@@ -233,41 +259,35 @@
       let ammo;
 
       if (this.activeObjects.children.get('name', 'yellow')) {
-        for (let index = 0; index < 2; index++) {
-          ammo = this.ammoYellow.get(this.player.x + 8, this.player.y + 8, 'ammo-yellow');
-          if (ammo) {
-            ammo.setActive(true);
-            ammo.setVisible(true);
-            ammo.lifespan = 1000;
-            ammo.body.setVelocityY(-160);
-            ammo.body.setVelocityX(index ? 60 : -60);
-          }
+        ammo = this.ammoYellow.get(this.player.x + 8, this.player.y + 8, 'ammo-yellow');
+        if (ammo) {
+          ammo.setActive(true);
+          ammo.setVisible(true);
+          ammo.lifespan = 1000;
+          ammo.body.setVelocityY(-200);
+          ammo.body.setAllowGravity(false);
         }
       }
 
       if (this.activeObjects.children.get('name', 'orange')) {
-        for (let index = 0; index < 2; index++) {
-          ammo = this.ammoOrange.get(this.player.x + 8, this.player.y + 8, 'ammo-orange');
-          if (ammo) {
-            ammo.setActive(true);
-            ammo.setVisible(true);
-            ammo.lifespan = 1000;
-            ammo.body.setVelocityY(-180);
-            ammo.body.setVelocityX(index ? 40 : -40);
-          }
+        ammo = this.ammoOrange.get(this.player.x + 8, this.player.y + 8, 'ammo-orange');
+        if (ammo) {
+          ammo.setActive(true);
+          ammo.setVisible(true);
+          ammo.lifespan = 1000;
+          ammo.body.setVelocityY(200);
+          ammo.body.setAllowGravity(false);
         }
       }
 
       if (this.activeObjects.children.get('name', 'red')) {
-        for (let index = 0; index < 2; index++) {
-          ammo = this.ammoRed.get(this.player.x + 8, this.player.y + 8, 'ammo-red');
-          if (ammo) {
-            ammo.setActive(true);
-            ammo.setVisible(true);
-            ammo.lifespan = 1000;
-            ammo.body.setVelocityY(-195);
-            ammo.body.setVelocityX(index ? 20 : -20);
-          }
+        ammo = this.ammoRed.get(this.player.x + 8, this.player.y + 8, 'ammo-red');
+        if (ammo) {
+          ammo.setActive(true);
+          ammo.setVisible(true);
+          ammo.lifespan = 1000;
+          ammo.body.setVelocityX(-200);
+          ammo.body.setAllowGravity(false);
         }
       }
 
@@ -276,8 +296,8 @@
         ammo.setActive(true);
         ammo.setVisible(true);
         ammo.lifespan = 1000;
-        ammo.body.setVelocityY(-200);
-        ammo.body.setVelocityX(0);
+        ammo.body.setVelocityX(200);
+        ammo.body.setAllowGravity(false);
       }
     }
 
