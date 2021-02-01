@@ -59,10 +59,10 @@
       const vehicleConfig = [
         { color: '0xff0000', x: 16, y: 16, name: 'red' },
         { color: '0xffff00', x: 48, y: game.config.height / 2 - 8, name: 'yellow' },
-        //{ color: '0x0000ff', x: 16, y: game.config.height - 32, name: 'blue' },
+        { color: '0x0000ff', x: 96, y: game.config.height - 64, name: 'blue' },
         { color: '0xff6600', x: game.config.width - 64, y: 16, name: 'orange' },
-        { color: '0x00ff00', x: game.config.width - 32, y: game.config.height / 2 - 8, name: 'green' },
-        //{ color: '0x6600ff', x: game.config.width - 32, y: game.config.height - 32, name: 'purple' },
+        { color: '0x00ff00', x: game.config.width - 48, y: game.config.height / 2 - 8, name: 'green' },
+        { color: '0x6600ff', x: game.config.width - 96, y: game.config.height - 64, name: 'purple' },
       ];
 
       this.vehicles = this.physics.add.group();
@@ -117,6 +117,7 @@
         .setActive(false);
 
       this.shield2 = this.physics.add.existing(shield2);
+      this.shield2.body.setAllowGravity(false);
 
       const shield = this.add.rectangle(0, 0, 24, 24, '0x6600ff')
         .setOrigin(0, 0)
@@ -126,6 +127,7 @@
         .setActive(false);
 
       this.shield = this.physics.add.existing(shield);
+      this.shield.body.setAllowGravity(false);
 
       // Player
       const playerRectangle = this.add.rectangle(game.config.width / 2 - 8, game.config.height / 2 - 8, 16, 16, "0xffffff")
@@ -133,6 +135,9 @@
         .setName('player')
         .setDepth(this.vehicles.children.size);
       this.player = this.physics.add.existing(playerRectangle);
+
+      // Camera follow player
+      this.cameras.main.startFollow(this.player);
 
       // Initialize active objects
       this.activeObjects = this.physics.add.group();
@@ -195,39 +200,11 @@
 
       // Update shield position
       if (this.activeObjects.children.get('name', 'purple')) {
-        if (up.isDown) {
-          this.shield.body.setVelocityY(-velocity);
-        } else if (down.isDown) {
-          this.shield.body.setVelocityY(velocity);
-        } else {
-          //this.shield.body.setVelocityY(0);
-        }
-
-        if (left.isDown) {
-          this.shield.body.setVelocityX(-velocity);
-        } else if (right.isDown) {
-          this.shield.body.setVelocityX(velocity);
-        } else {
-          this.shield.body.setVelocityX(0);
-        }
+        this.shield.setPosition(this.player.body.x - 4, this.player.body.y - 4);
       }
 
       if (this.activeObjects.children.get('name', 'blue')) {
-        if (up.isDown) {
-          this.shield2.body.setVelocityY(-velocity);
-        } else if (down.isDown) {
-          this.shield2.body.setVelocityY(velocity);
-        } else {
-          // this.shield2.body.setVelocityY(0);
-        }
-
-        if (left.isDown) {
-          this.shield2.body.setVelocityX(-velocity);
-        } else if (right.isDown) {
-          this.shield2.body.setVelocityX(velocity);
-        } else {
-          this.shield2.body.setVelocityX(0);
-        }
+        this.shield2.setPosition(this.player.body.x - 8, this.player.body.y - 8);
       }
 
       // Update vehicle positions
