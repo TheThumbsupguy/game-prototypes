@@ -10,10 +10,10 @@
   <script>
     /*******
     TODO
-    - Rethink controls for jumping, shooting and entering a vehicle
+    X Rethink controls for jumping, shooting and entering a vehicle
     - Rethink ammo velocity up when firing?
-    - Remove camera shift between vehicle and player
-    - Update logic to snap multiple vehicles together nicely
+    X Remove camera shift between vehicle and player
+    X Update logic to snap multiple vehicles together nicely
 
     DESIGN
     - Like terraria and vagante?
@@ -186,24 +186,45 @@
 
       // Move player
       if (this.activeObjects.countActive()) {
-        this.activeObjects.children.each(vehicle => {
-          if (up.isDown) {
-            vehicle.body.setVelocityY(-velocity);
-          } else if (down.isDown) {
-            vehicle.body.setVelocityY(velocity);
-          }
+        const firstObject = this.activeObjects.getFirst(true);
+        const lastObject = this.activeObjects.getLast(true);
 
-          if (left.isDown) {
-            vehicle.body.setVelocityX(-velocity);
-          } else if (right.isDown) {
-            vehicle.body.setVelocityX(velocity);
-          } else {
-            vehicle.body.setVelocityX(0);
+        // Only move the last object, which is the foundation of the mech.
+        if (up.isDown) {
+          lastObject.body.setVelocityY(-velocity);
+        } else if (down.isDown) {
+          lastObject.body.setVelocityY(velocity);
+        }
+
+        if (left.isDown) {
+          lastObject.body.setVelocityX(-velocity);
+        } else if (right.isDown) {
+          lastObject.body.setVelocityX(velocity);
+        } else {
+          lastObject.body.setVelocityX(0);
+        }
+
+        // Loop through the active objects in reverse order,
+        // skipping the last object, and stack them vertically.
+        this.activeObjects.children.each((vehicle, index) => {
+          if (index != 0) {
+            const inversePosition = this.activeObjects.children.size - index;
+            const previousInversePosition = inversePosition + 1;
+            const inverseVehicle = this.activeObjects.getFirstNth(inversePosition, true);
+            const previousInverseVehicle = this.activeObjects.getFirstNth(previousInversePosition, true);
+
+            inverseVehicle.body.x = previousInverseVehicle.body.x;
+            inverseVehicle.body.y = previousInverseVehicle.body.y - 8;
           }
-          this.player.body.x = vehicle.body.x + 4;
-          this.player.body.y = vehicle.body.y - 8;
         });
+
+        // Stack the player on top of the first object.
+        if (firstObject) {
+          this.player.body.x = firstObject.body.x + 4;
+          this.player.body.y = firstObject.body.y - 8;
+        }
       } else {
+        // Just the player is active, so only move the player.
         if (up.isDown) {
           this.player.body.setVelocityY(-velocity);
         } else if (down.isDown) {
@@ -243,13 +264,16 @@
     }
 
     function fireAmmo() {
+      const yellow = this.activeObjects.children.get('name', 'yellow');
+      const orange = this.activeObjects.children.get('name', 'orange');
+      const red = this.activeObjects.children.get('name', 'red');
       const { up, right, down, left } = this.cursors;
       const facing = this.player.direction;
       const ammoVelocity = 400;
       let ammo;
 
-      if (this.activeObjects.children.get('name', 'yellow')) {
-        ammo = this.ammoYellow.get(this.player.x + 8, this.player.y + 16, 'ammo-yellow');
+      if (yellow) {
+        ammo = this.ammoYellow.get(yellow.x + 12, yellow.y + 12, 'ammo-yellow');
         if (ammo) {
           ammo.setActive(true);
           ammo.setVisible(true);
@@ -262,12 +286,11 @@
             ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
           }
           ammo.body.setAllowGravity(false);
-          return;
         }
       }
 
-      if (this.activeObjects.children.get('name', 'orange')) {
-        ammo = this.ammoOrange.get(this.player.x + 8, this.player.y + 16, 'ammo-orange');
+      if (orange) {
+        ammo = this.ammoOrange.get(orange.x + 12, orange.y + 12, 'ammo-orange');
         if (ammo) {
           ammo.setActive(true);
           ammo.setVisible(true);
@@ -280,12 +303,11 @@
             ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
           }
           ammo.body.setAllowGravity(false);
-          return;
         }
       }
 
-      if (this.activeObjects.children.get('name', 'red')) {
-        ammo = this.ammoRed.get(this.player.x + 8, this.player.y + 16, 'ammo-red');
+      if (red) {
+        ammo = this.ammoRed.get(red.x + 12, red.y + 12, 'ammo-red');
         if (ammo) {
           ammo.setActive(true);
           ammo.setVisible(true);
@@ -298,7 +320,6 @@
             ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
           }
           ammo.body.setAllowGravity(false);
-          return;
         }
       }
 
@@ -315,42 +336,46 @@
           ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
         }
         ammo.body.setAllowGravity(false);
-        return;
       }
     }
 
     function spaceKeyDown() {
-      let gettingInVehicle = false;
+      fireAmmo.call(this);
+    }
+
+    function shiftKeyDown() {
+      const activeObject = this.activeObjects.getLast(true) || this.player;
+      let isEnteringVehicle = false;
+
       // For each vehicle on the map...
       this.vehicles.children.each(vehicle => {
         // Check if the player overlaps a vehicle.
-        if (this.physics.world.intersects(this.player.body, vehicle.body)) {
+        if (this.physics.world.intersects(activeObject.body, vehicle.body)) {
           // If so, attach player to vehicle, otherwise detach player from vehicle.
           if (!this.activeObjects.contains(vehicle)) {
-            const index = this.activeObjects.children.size - 1;
-            const depth = this.vehicles.children.size - (index + 1);
+            const index = this.activeObjects.children.size;
+            const depth = index + 1;
 
-            gettingInVehicle = true;
+            isEnteringVehicle = true;
+
             this.activeObjects.add(vehicle);
             this.player.setDepth(0);
             vehicle.setDepth(depth);
-            this.cameras.main.startFollow(vehicle, false, 0.05, 1, 0, 60);
           }
         }
       });
 
-      if (!gettingInVehicle) fireAmmo.call(this);
-    }
-
-    function shiftKeyDown() {
-      this.vehicles.children.iterate(vehicle => {
-        if (this.activeObjects.contains(vehicle)) {
-          this.activeObjects.remove(vehicle);
-          this.player.setDepth(this.vehicles.children.size);
-          vehicle.setDepth(0);
-          this.cameras.main.startFollow(this.player, false, 0.05, 1, 0, 60);
-        }
-      });
+      // Entering a new vehicle, get ready to zoom out.
+      if (isEnteringVehicle) {
+        const zoom = 1 - (this.activeObjects.children.size * 0.05);
+        this.cameras.main.zoomTo(zoom);
+      } else {
+        // Exiting a vehicle, get ready to zoom in and disperse vehicles.
+        const position = this.player.x + (this.player.width / 2) - (this.activeObjects.children.size * 24 / 2);
+        this.activeObjects.setDepth(0).setX(position, 24).clear();
+        this.player.setDepth(this.vehicles.children.size);
+        this.cameras.main.zoomTo(1);
+      }
     }
 
     function upKeyDown() {
