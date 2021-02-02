@@ -11,7 +11,7 @@
     /*******
     TODO
     X Rethink controls for jumping, shooting and entering a vehicle
-    - Rethink ammo velocity up when firing?
+    X Rethink ammo velocity up when firing
     X Remove camera shift between vehicle and player
     X Update logic to snap multiple vehicles together nicely
 
@@ -77,10 +77,10 @@
       const vehicleConfig = [
         { color: '0xff0000', x: 16, y: 16, name: 'red' },
         { color: '0xffff00', x: 48, y: game.config.height / 2 - 8, name: 'yellow' },
-        { color: '0x0000ff', x: 80, y: game.config.height - 64, name: 'blue' },
+        //{ color: '0x0000ff', x: 80, y: game.config.height - 64, name: 'blue' },
         { color: '0xff6600', x: game.config.width - 32, y: 16, name: 'orange' },
         { color: '0x00ff00', x: game.config.width - 64, y: game.config.height / 2 - 8, name: 'green' },
-        { color: '0x6600ff', x: game.config.width - 96, y: game.config.height - 64, name: 'purple' },
+        //{ color: '0x6600ff', x: game.config.width - 96, y: game.config.height - 64, name: 'purple' },
       ];
 
       this.vehicles = this.physics.add.group();
@@ -145,8 +145,8 @@
       this.cursors = this.input.keyboard.createCursorKeys();
       this.cursors.space.on('down', spaceKeyDown, this);
       this.cursors.shift.on('down', shiftKeyDown, this);
-      this.cursors.up.on('down', upKeyDown, this);
-      this.cursors.down.on('down', downKeyDown, this);
+      //this.cursors.up.on('down', upKeyDown, this);
+      //this.cursors.down.on('down', downKeyDown, this);
       this.cursors.left.on('down', leftKeyDown, this);
       this.cursors.right.on('down', rightKeyDown, this);
 
@@ -278,9 +278,7 @@
           ammo.setActive(true);
           ammo.setVisible(true);
           ammo.lifespan = 1000;
-          if (up.isDown || down.isDown) {
-            ammo.body.setVelocityY(up.isDown ? -ammoVelocity : ammoVelocity);
-          } else if (right.isDown || left.isDown) {
+          if (right.isDown || left.isDown) {
             ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
           } else {
             ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
@@ -295,9 +293,7 @@
           ammo.setActive(true);
           ammo.setVisible(true);
           ammo.lifespan = 1000;
-          if (up.isDown || down.isDown) {
-            ammo.body.setVelocityY(up.isDown ? -ammoVelocity : ammoVelocity);
-          } else if (right.isDown || left.isDown) {
+          if (right.isDown || left.isDown) {
             ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
           } else {
             ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
@@ -312,9 +308,7 @@
           ammo.setActive(true);
           ammo.setVisible(true);
           ammo.lifespan = 1000;
-          if (up.isDown || down.isDown) {
-            ammo.body.setVelocityY(up.isDown ? -ammoVelocity : ammoVelocity);
-          } else if (right.isDown || left.isDown) {
+          if (right.isDown || left.isDown) {
             ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
           } else {
             ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
@@ -328,9 +322,7 @@
         ammo.setActive(true);
         ammo.setVisible(true);
         ammo.lifespan = 1000;
-        if (up.isDown || down.isDown) {
-          ammo.body.setVelocityY(up.isDown ? -ammoVelocity : ammoVelocity);
-        } else if (right.isDown || left.isDown) {
+        if (right.isDown || left.isDown) {
           ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
         } else {
           ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
@@ -378,13 +370,13 @@
       }
     }
 
-    function upKeyDown() {
-      this.player.direction = 'up';
-    }
+    // function upKeyDown() {
+    //   this.player.direction = 'up';
+    // }
 
-    function downKeyDown() {
-      this.player.direction = 'down';
-    }
+    // function downKeyDown() {
+    //   this.player.direction = 'down';
+    // }
 
     function leftKeyDown() {
       this.player.direction = 'left';
