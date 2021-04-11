@@ -66,6 +66,10 @@
     const game = new Phaser.Game(config);
 
     function preload() {
+      this.load.spritesheet('player',
+        'assets/player.png',
+        { frameWidth: 32, frameHeight: 32 }
+      );
     }
 
     function create() {
@@ -137,16 +141,33 @@
       });
 
       // Player
-      const playerRectangle = this.add.rectangle(game.config.width / 2 - 8, game.config.height / 2 - 8, 16, 16, "0xffffff")
+      // const playerRectangle = this.add.rectangle(game.config.width / 2 - 8, game.config.height / 2 - 8, 16, 16, "0xffffff")
+      this.player = this.physics.add.sprite(game.config.width / 2 - 8, game.config.height / 2 - 8, 'player')
         .setOrigin(0, 0)
         .setName('player')
         .setDepth(this.vehicles.children.size);
-      this.player = this.physics.add.existing(playerRectangle);
+      //this.player = this.physics.add.existing(playerRectangle);
       this.player.direction = 'right';
 
       // Camera follow player
       this.cameras.main.startFollow(this.player, false, 0.05, 1, 0, 60);
       //this.cameras.main.zoomTo(0.25);
+
+      // Player animations
+      this.anims.create({
+        key: 'turn',
+        frames: [{ key: 'player', frame: 0 }],
+      });
+      this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('player', { start: 1, end: 6 }),
+        frameRate: 6,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'rightJump',
+        frames: [{ key: 'player', frame: 1 }],
+      });
 
       // Initialize active objects
       this.activeObjects = this.physics.add.group();
@@ -167,6 +188,8 @@
     function update(time, delta) {
       const { up, right, down, left, space, shift } = this.cursors;
       const velocity = getVelocity.call(this);
+      const isGround =
+        this.player.body.touching.down || this.player.body.blocked.down;
 
       // Stop non-active vehicles
       this.vehicles.children.each(vehicle => {
@@ -194,6 +217,13 @@
         }
       });
 
+      // Player move left, move right and idle
+      if ((right.isDown || left.isDown) && (isGround))
+        this.player.anims.play("right", true);
+      else if (!isGround)
+        this.player.anims.play("rightJump", true);
+      else this.player.anims.play("turn", true);
+
       // Move player
       if (this.activeObjects.countActive()) {
         const firstObject = this.activeObjects.getFirst(true);
@@ -208,8 +238,10 @@
 
         if (left.isDown) {
           lastObject.body.setVelocityX(-velocity);
+          this.player.setFlipX(true);
         } else if (right.isDown) {
           lastObject.body.setVelocityX(velocity);
+          this.player.setFlipX(false);
         } else {
           lastObject.body.setVelocityX(0);
         }
@@ -243,8 +275,10 @@
 
         if (left.isDown) {
           this.player.body.setVelocityX(-velocity);
+          this.player.setFlipX(true);
         } else if (right.isDown) {
           this.player.body.setVelocityX(velocity);
+          this.player.setFlipX(false);
         } else {
           this.player.body.setVelocityX(0);
         }
