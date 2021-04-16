@@ -150,7 +150,7 @@
       this.player.direction = 'right';
 
       // Camera follow player
-      this.cameras.main.startFollow(this.player, false, 0.05, 1, 0, 60);
+      this.cameras.main.startFollow(this.player, false, 1, 1, 0, 60);
       //this.cameras.main.zoomTo(0.25);
 
       // Player animations
@@ -176,7 +176,7 @@
       this.cursors = this.input.keyboard.createCursorKeys();
       this.cursors.space.on('down', spaceKeyDown, this);
       this.cursors.shift.on('down', shiftKeyDown, this);
-      //this.cursors.up.on('down', upKeyDown, this);
+      this.cursors.up.on('down', upKeyDown, this);
       //this.cursors.down.on('down', downKeyDown, this);
       this.cursors.left.on('down', leftKeyDown, this);
       this.cursors.right.on('down', rightKeyDown, this);
@@ -190,6 +190,7 @@
       const velocity = getVelocity.call(this);
       const isGround =
         this.player.body.touching.down || this.player.body.blocked.down;
+      const canJump = (this.time.now - this.player.jumpTimeStamp) < 250; // milliseconds
 
       // Stop non-active vehicles
       this.vehicles.children.each(vehicle => {
@@ -230,10 +231,12 @@
         const lastObject = this.activeObjects.getLast(true);
 
         // Only move the last object, which is the foundation of the mech.
-        if (up.isDown) {
-          lastObject.body.setVelocityY(-velocity);
-        } else if (down.isDown) {
-          lastObject.body.setVelocityY(velocity);
+        if (canJump) {
+          if (up.isDown) {
+            lastObject.body.setVelocityY(-velocity);
+          } else if (down.isDown) {
+            lastObject.body.setVelocityY(velocity);
+          }
         }
 
         if (left.isDown) {
@@ -262,15 +265,17 @@
 
         // Stack the player on top of the first object.
         if (firstObject) {
-          this.player.body.x = firstObject.body.x + 4;
+          this.player.body.x = firstObject.body.x - 4;
           this.player.body.y = firstObject.body.y - 8;
         }
       } else {
         // Just the player is active, so only move the player.
-        if (up.isDown) {
-          this.player.body.setVelocityY(-velocity);
-        } else if (down.isDown) {
-          this.player.body.setVelocityY(velocity);
+        if (canJump) {
+          if (up.isDown) {
+            this.player.body.setVelocityY(-velocity);
+          } else if (down.isDown) {
+            this.player.body.setVelocityY(velocity);
+          }
         }
 
         if (left.isDown) {
@@ -361,18 +366,18 @@
         }
       }
 
-      ammo = this.ammoDefault.get(this.player.x + 8, this.player.y + 8, 'ammo-default');
-      if (ammo) {
-        ammo.setActive(true);
-        ammo.setVisible(true);
-        ammo.lifespan = 1000;
-        if (right.isDown || left.isDown) {
-          ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
-        } else {
-          ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
-        }
-        ammo.body.setAllowGravity(false);
-      }
+      // ammo = this.ammoDefault.get(this.player.x + 16, this.player.y + 16, 'ammo-default');
+      // if (ammo) {
+      //   ammo.setActive(true);
+      //   ammo.setVisible(true);
+      //   ammo.lifespan = 1000;
+      //   if (right.isDown || left.isDown) {
+      //     ammo.body.setVelocityX(left.isDown ? -ammoVelocity : ammoVelocity);
+      //   } else {
+      //     ammo.body.setVelocityX(facing == 'left' ? -ammoVelocity : ammoVelocity);
+      //   }
+      //   ammo.body.setAllowGravity(false);
+      // }
     }
 
     function spaceKeyDown() {
@@ -414,9 +419,23 @@
       }
     }
 
-    // function upKeyDown() {
-    //   this.player.direction = 'up';
-    // }
+    function upKeyDown() {
+      //this.player.direction = 'up';
+      let isGround;
+
+      if (this.activeObjects.countActive()) {
+        const lastObject = this.activeObjects.getLast(true);
+        isGround =
+          lastObject.body.touching.down || lastObject.body.blocked.down;
+      } else {
+        isGround =
+          this.player.body.touching.down || this.player.body.blocked.down;
+      }
+
+      if (isGround && (!this.player.jumpTimeStamp || this.time.now - this.player.jumpTimeStamp >= 250)) {
+        this.player.jumpTimeStamp = this.time.now;
+      }
+    }
 
     // function downKeyDown() {
     //   this.player.direction = 'down';
