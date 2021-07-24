@@ -1,1 +1,12 @@
-node_modules
+# parcel 2
+.parcel-cache
+dist
+
+# yarn 2 "zero-install"
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
