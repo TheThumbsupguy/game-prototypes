@@ -27,11 +27,3 @@ A snake game inspired by this tutorial at <a href="http://thecodeplayer.com/walk
 Controls: Arrow keys to move, Spacebar to pause
 
 Libraries: <a href="https://jquery.com" target="_blank">jQuery</a>
-
-## 4. ANEWONE
-
-Trying out some JavaScript libraries and tooling to make a game. See the [readme](https://github.com/TheThumbsupguy/Game-Prototypes/tree/master/4_ANEWONE#anewone) for setup.
-
-Controls: Arrow keys to move, Shift to enter vehicle
-
-Libraries: <a href="https://phaser.io/" target="_blank">Phaser</a>
